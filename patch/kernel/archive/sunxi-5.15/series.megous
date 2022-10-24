@@ -138,13 +138,10 @@
 	megous/of-property-fw_devlink-Support-allwinner-sram-links.patch
 	megous/mfd-rk808-Add-support-for-power-off-on-RK817.patch
 	megous/mfd-rk808-Add-support-for-restart-via-PMIC.patch
-	megous/pinctrl-sunxi-Fix-misleading-lockdep-deadlock-warnin.patch
 	megous/usb-quirks-Add-USB_QUIRK_RESET-for-Quectel-EG25G-Mod.patch
 	megous/drm-sun4i-Fix-wrong-location-of-clk_prepare_enable.patch
 	megous/drm-panel-st7703-Improve-the-power-up-sequence-of-th.patch
 	megous/2-drm-panel-st7703-Improve-the-power-up-sequence-of-th.patch
-	megous/drm-sun4i-sun6i_mipi_dsi-fix-horizontal-timing-calcu.patch
-	megous/Revert-drm-sun4i-sun6i_mipi_dsi-fix-horizontal-timin.patch
 	megous/drm-sun4i-Implement-gamma-correction.patch
 	megous/drm-sun4i-sun6i_mipi_dsi-add-support-for-generic-lon.patch
 	megous/mfd-rk808-Drop-reset-handlers-for-rk805-rk808-and-rk.patch
@@ -464,6 +461,5 @@
 	megous/media-i2c-imx258-Add-support-for-reset-gpio.patch
 	megous/media-i2c-imx258-Add-support-for-power-supplies.patch
 	megous/phy-rockchip-inno-usb2-Don-t-print-useless-error.patch
-	megous/input-touchscreen-goodix-Add-support-for-GT1158.patch
 	megous/arm64-dts-rk3566-qaurtz64-a-Fix-ethernet-performance.patch
 	megous/drm-panel-st7703-Fix-power-off-sequence.patch
