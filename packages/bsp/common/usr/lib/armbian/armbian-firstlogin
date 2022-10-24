@@ -6,6 +6,10 @@
 # License version 2. This program is licensed "as is" without any
 # warranty of any kind, whether express or implied.
 
+# read distribution status
+[[ -f /etc/lsb-release ]] && . /etc/lsb-release
+[[ -n "$DISTRIB_CODENAME" && -f /etc/armbian-distribution-status ]] && DISTRIBUTION_STATUS=$(grep "$DISTRIB_CODENAME" /etc/armbian-distribution-status | cut -d"=" -f2)
+
 . /etc/armbian-release
 
 
@@ -66,7 +70,7 @@ read_password()
 set_shell()
 {
 
-	optionsAudits=($(cat /etc/shells | grep "zsh\|/bash" | sed 's/\/bin\///g' | sed 's/\/usr//g' | uniq))
+	optionsAudits=($(grep "zsh\|/bash" /etc/shells | sed 's/\/bin\///g' | sed 's/\/usr//g' | uniq))
 	USER_SHELL="bash"
 
 	if [[ "${#optionsAudits[@]}" -gt 1 ]]; then
@@ -309,9 +313,21 @@ if [[ -f /root/.not_logged_in_yet && -n $(tty) ]]; then
 
 	systemctl is-system-running --wait >/dev/null
 
+	# enable hiDPI support
+	if [[ "$(cat /sys/class/graphics/fb0/virtual_size 2>/dev/null | cut -d, -f1)" -gt 1920 ]]; then
+		# lightdm
+		[[ -f /etc/lightdm/slick-greeter.conf ]] && echo "enable-hidpi = on" >> /etc/lightdm/slick-greeter.conf
+		# xfce
+		[[ -f /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml ]] && sed -i 's|<property name="WindowScalingFactor" type="int" value=".*|<property name="WindowScalingFactor" type="int" value="2">|g' /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
+		setfont /usr/share/consolefonts/Uni3-TerminusBold32x16.psf.gz
+	fi
+
 	clear
+
 	echo -e "Welcome to \e[1m\e[97mARMBIAN\x1B[0m! \n"
 	echo -e "Documentation: \e[1m\e[92mhttps://docs.armbian.com\x1B[0m | Community: \e[1m\e[92mhttps://forum.armbian.com\x1B[0m\n"
+	GET_IP=$(bash /etc/update-motd.d/30-armbian-sysinfo | grep IP | sed "s/.*IP://" | sed 's/^[ \t]*//')
+	[[ -n "$GET_IP" ]] && echo -e "IP address: $GET_IP\n"
 
 	trap '' 2
 	REPEATS=3
@@ -349,9 +365,11 @@ if [[ -f /root/.not_logged_in_yet && -n $(tty) ]]; then
 	# display support status
 	if [ "$IMAGE_TYPE" != "nightly" ]; then
 		if [[ "$BRANCH" == "edge" ]]; then
-			echo -e "\nSupport status: \e[0;31mno support\x1B[0m (edge kernel branch)"
+			echo -e "\nSupport status: \e[0;31mcommunity support\x1B[0m (edge kernel branch)"
 		elif [[ "$DISTRIBUTION_STATUS" != "supported" ]]; then
-			echo -e "\nSupport status: \e[0;31mno support\x1B[0m (unsupported userspace)"
+			echo -e "\nSupport status: \e[0;31mcommunity support\x1B[0m (unsupported userspace)"
+		elif [[ "$BOARD_TYPE" != "conf" ]]; then
+			echo -e "\nSupport status: \e[0;31mcommunity support\x1B[0m (looking for a dedicated maintainer)"
 		fi
 	else
 
@@ -418,6 +436,10 @@ if [[ -f /root/.not_logged_in_yet && -n $(tty) ]]; then
 			# select mate session
 			[[ -x $(command -v mate-wm) ]] && sed -i "s/user-session.*/user-session=mate/" /etc/lightdm/lightdm.conf.d/11-armbian.conf
 			[[ -x $(command -v mate-wm) ]] && sed -i "s/user-session.*/user-session=mate/" /etc/lightdm/lightdm.conf.d/22-armbian-autologin.conf
+
+                        # select plasma wayland session
+                        [[ -x $(command -v plasmashell) ]] && sed -i "s/user-session.*/user-session=plasmawayland/" /etc/lightdm/lightdm.conf.d/11-armbian.conf
+                        [[ -x $(command -v plasmashell) ]] && sed -i "s/user-session.*/user-session=plasmawayland/" /etc/lightdm/lightdm.conf.d/22-armbian-autologin.conf
 
 			ln -sf /lib/systemd/system/lightdm.service /etc/systemd/system/display-manager.service
 
